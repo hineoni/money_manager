@@ -5,6 +5,10 @@ import 'services/transaction_service.dart';
 import 'services/category_service.dart';
 import 'viewmodels/transactions_viewmodel.dart';
 import 'viewmodels/categories_viewmodel.dart';
+import 'viewmodels/settings_viewmodel.dart';
+import 'models/app_theme.dart';
+import 'models/app_theme_data.dart';
+import 'models/app_theme_list.dart';
 import 'views/home_screen.dart';
 
 class MyApp extends StatelessWidget {
@@ -24,14 +28,37 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               CategoriesViewModel(context.read<CategoryService>()),
         ),
-      ],
-      child: MaterialApp(
-        title: 'Money Manager',
-        theme: ThemeData(
-          fontFamily: 'Inter',
-          useMaterial3: true,
+        ChangeNotifierProvider(
+          create: (_) => SettingsViewModel(),
         ),
-        home: const HomeScreen(),
+      ],
+      child: Consumer<SettingsViewModel>(
+        builder: (context, settings, _) {
+          final themeData = settings.themeData; // AppThemeData
+
+          return MaterialApp(
+            title: 'Money Manager',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              useMaterial3: true,
+              fontFamily: 'Inter',
+              scaffoldBackgroundColor: themeData.backgroundColor,
+              appBarTheme: AppBarTheme(
+                backgroundColor: themeData.primaryColor,
+                foregroundColor: themeData.textColor,
+              ),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: themeData.primaryColor,
+                brightness: themeData.brightness,
+              ),
+              textTheme: TextTheme(
+                bodyMedium: TextStyle(color: themeData.textColor),
+                bodyLarge: TextStyle(color: themeData.textColor),
+              ),
+            ),
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
   }

@@ -1,0 +1,4 @@
+enum AppLanguage {
+  Russian,
+  English,
+}

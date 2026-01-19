@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/settings_viewmodel.dart';
 import 'incomes_screen.dart';
 import 'expenses_screen.dart';
 import 'summary_screen.dart';
@@ -15,10 +17,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = [
-    SummaryScreen(),
-    IncomesScreen(),
-    ExpensesScreen(),
-    SettingsScreen()
+    const SummaryScreen(),
+    const IncomesScreen(),
+    const ExpensesScreen(),
+    const SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -27,11 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget bottomNavIcon(String asset) {
+  Widget bottomNavIcon(String assetPath) {
     return Padding(
-      padding: const EdgeInsets.only(top: 6), 
+      padding: const EdgeInsets.only(top: 6),
       child: Image.asset(
-        asset,
+        assetPath,
         width: 30,
         height: 30,
       ),
@@ -40,41 +42,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsViewModel>();
+    final theme = settings.themeData;
+
     return Scaffold(
+      backgroundColor: theme.backgroundColor,
       body: _pages[_selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.grey, width: 1),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: theme.primaryColor,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: theme.textColor,
+        unselectedItemColor: theme.textColor.withOpacity(0.6),
+        selectedLabelStyle: TextStyle(
+          fontSize: 16,
+          color: theme.textColor,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 14,
+          color: theme.textColor.withOpacity(0.6),
+        ),
+        items: [
+          BottomNavigationBarItem(
+            icon: bottomNavIcon(theme.homeIcon),
+            label: settings.getText('summary'),
           ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey,
-          selectedLabelStyle: const TextStyle(fontSize: 16),
-          unselectedLabelStyle: const TextStyle(fontSize: 14),
-          items: [
-            BottomNavigationBarItem(
-              icon: bottomNavIcon('assets/icons/home.png'),
-              label: 'Общее',
-            ),
-            BottomNavigationBarItem(
-              icon: bottomNavIcon('assets/icons/plus.png'),
-              label: 'Доходы',
-            ),
-            BottomNavigationBarItem(
-              icon: bottomNavIcon('assets/icons/minus.png'),
-              label: 'Расходы',
-            ),
-            BottomNavigationBarItem(
-              icon: bottomNavIcon('assets/icons/settings.png'),
-              label: 'Настройки',
-            ),
-          ],
-        ),
+          BottomNavigationBarItem(
+            icon: bottomNavIcon(theme.plusIcon),
+            label: settings.getText('income'),
+          ),
+          BottomNavigationBarItem(
+            icon: bottomNavIcon(theme.minusIcon),
+            label: settings.getText('expenses'),
+          ),
+          BottomNavigationBarItem(
+            icon: bottomNavIcon(theme.settingsIcon),
+            label: settings.getText('settingsTitle'),
+          ),
+        ],
       ),
     );
   }
